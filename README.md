@@ -1,4 +1,4 @@
-# Águias — Site Didático & Profissional (Single-file)
+# Águias (Single-file)
 
 Este repositório contém uma página **HTML única** (HTML+CSS+JS) com visual moderno, foco didático e animações performáticas.  
 O layout inclui um **fundo PRO** (gradient/aurora + grid técnico + **collage fotográfico com parallax**), seções educativas e um **quiz interativo**.
