@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Águias</title>
+  <meta name="description" content="Site didático e divertido sobre águias: espécies, curiosidades, quiz e interações."/>
+  <style>
+    :root{
+      --bg:#0b1220; --panel:#0f172a; --muted:#94a3b8; --text:#e2e8f0; --brand:#38bdf8; --accent:#f59e0b; --ok:#22c55e; --warn:#f97316;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font:16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell, "Noto Sans", sans-serif;background:var(--bg);color:var(--text)}
+    .wrap{max-width:1100px;margin:0 auto;padding:24px}
+    header{position:sticky;top:0;background:linear-gradient(180deg, rgba(11,18,32,.95), rgba(11,18,32,.75));backdrop-filter:saturate(1.1) blur(8px);z-index:5}
+    .nav{display:flex;align-items:center;gap:16px;justify-content:space-between}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:40px;height:40px;display:grid;place-items:center;border-radius:12px;background:radial-gradient(80% 80% at 30% 30%, var(--brand), #155e75);box-shadow:0 6px 18px rgba(56,189,248,.35)}
+    .title{font-weight:800;letter-spacing:.3px}
+    .muted{color:var(--muted)}
+    .btn{appearance:none;border:0;border-radius:14px;padding:10px 14px;background:var(--brand);color:#001018;font-weight:700;cursor:pointer;box-shadow:0 6px 16px rgba(56,189,248,.35);transition:transform .15s ease, box-shadow .15s ease}
+    .btn:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(56,189,248,.45)}
+    .btn.ghost{background:transparent;color:var(--text);border:1px solid rgba(226,232,240,.14);box-shadow:none}
+    .grid{display:grid;gap:16px}
+    .hero{display:grid;grid-template-columns:1.2fr .8fr;gap:24px;align-items:center;margin-top:20px}
+    @media (max-width:900px){.hero{grid-template-columns:1fr}}
+    .card{background:linear-gradient(180deg, rgba(17,24,39,.7), rgba(30,41,59,.6));border:1px solid rgba(148,163,184,.18);border-radius:18px;padding:18px}
+    h1{font-size:clamp(28px,4vw,44px);margin:0 0 8px}
+    h2{font-size:clamp(20px,3vw,28px);margin:0 0 8px}
+    h3{font-size:18px;margin:10px 0}
+    .tag{display:inline-block;border:1px solid rgba(148,163,184,.25);padding:2px 8px;border-radius:999px;font-size:12px;color:var(--muted)}
+    .kpi{display:flex;gap:12px;flex-wrap:wrap;margin:10px 0}
+    .kpi .pill{background:rgba(56,189,248,.15);color:#a7f3d0;border:1px solid rgba(56,189,248,.25);padding:6px 10px;border-radius:999px;font-weight:700}
+    .panel{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    @media (max-width:900px){.panel{grid-template-columns:1fr}}
+    .species{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    @media (max-width:900px){.species{grid-template-columns:1fr}}
+    .species .card{position:relative;overflow:hidden}
+    .chip{display:inline-flex;align-items:center;gap:6px;background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.25);color:var(--brand);padding:6px 10px;border-radius:999px;font-size:13px}
+    .actions{display:flex;gap:8px;flex-wrap:wrap}
+    .fact{font-size:14px;color:var(--muted)}
+    .divider{height:1px;background:linear-gradient(90deg, transparent, rgba(148,163,184,.25), transparent);margin:16px 0}
+    .quiz .q{font-weight:700;margin-bottom:8px}
+    .quiz .opt{display:block;margin:8px 0;padding:8px 10px;border:1px solid rgba(148,163,184,.25);border-radius:12px;cursor:pointer}
+    .quiz .opt[aria-checked="true"]{border-color:var(--brand);background:rgba(56,189,248,.1)}
+    .good{color:var(--ok)} .bad{color:#f43f5e}
+    footer{margin:32px 0;color:var(--muted);text-align:center}
+    .toggle{display:flex;align-items:center;gap:8px}
+    /* mini "eagle" */
+    .eagle{width:100%;aspect-ratio:16/9;display:grid;place-items:center}
+    svg{max-width:360px}
+    .range{width:100%}
+    .note{font-size:12px;color:var(--muted)}
+    /* === Fundo engraçado: águias voando + nuvens === */
+    .bg-sky{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;background:
+      radial-gradient(1200px 600px at 50% -20%, rgba(56,189,248,.12), transparent),
+      var(--bg);
+    }
+    .bird{position:absolute;left:-12vw;top:0;transform:translateX(-12vw) translateY(var(--y,10vh)) scale(var(--s,1));
+      animation:fly var(--dur,24s) linear infinite;filter:drop-shadow(0 6px 8px rgba(0,0,0,.25));}
+    .bird span{display:block;font-size:clamp(20px,1.6vw,42px)}
+    .cloud{position:absolute;top:var(--top,20%);left:-30vw;width:clamp(160px,22vw,340px);height:clamp(80px,10vw,160px);
+      background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:999px;filter:blur(2px);animation:drift var(--cdur,70s) linear infinite}
+    @keyframes fly{to{transform:translateX(112vw) translateY(var(--y,10vh)) scale(var(--s,1))}}
+    @keyframes drift{to{transform:translateX(140vw)}}
+    /* === Fundo engraçado 2.0: águias cartunescas ao fundo === */
+    .gag-sky{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;background:var(--bg)}
+    .gag-eagle{position:absolute;left:-15vw;top:0;opacity:.22;filter:drop-shadow(0 6px 10px rgba(0,0,0,.35)) hue-rotate(var(--h,0deg));will-change:transform}
+    .gag-eagle svg{width:clamp(54px,6vw,128px);height:auto}
+    .gag-cloud{position:absolute;top:var(--top,20%);left:-30vw;width:clamp(160px,22vw,340px);height:clamp(80px,10vw,160px);background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:999px;filter:blur(2px)}
+    /* === Fundo PRO: Gradient Mesh Aurora + Grid sutil (impactante e profissional) === */
+    /* Desativa fundos anteriores se existirem */
+    .gag-sky, .bg-sky, .bg-serra { display:none !important; }
+    .bg-pro{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+    .bg-pro svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+    .pro-grid{position:absolute;inset:0;background-image:linear-gradient(to right, rgba(255,255,255,.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,.04) 1px, transparent 1px);background-size:48px 48px;opacity:.05}
+    .pro-vignette{position:absolute;inset:0;background:
+      radial-gradient(120% 140% at 50% -10%, rgba(56,189,248,.18), transparent 50%),
+      radial-gradient(120% 120% at 50% 110%, rgba(245,158,11,.12), transparent 50%);
+      mix-blend-mode:screen;opacity:.6}
+    .layer{mix-blend-mode:screen;opacity:.75}
+    .blob{transform-origin:center;animation:blobMove var(--dur,28s) ease-in-out infinite alternate}
+    @keyframes blobMove{to{transform:translate(var(--tx,6%),var(--ty,-4%)) scale(var(--scale,1.12))}}
+    /* === Fundo PRO+ com imagens: collage fotográfico duotone + parallax === */
+    :root{
+      --img1: url('https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1600&q=60'); /* montanhas/vales */
+      --img2: url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1600&q=60'); /* floresta/neblina */
+      --img3: url('https://images.unsplash.com/photo-1517816743773-6e0fd518b4a6?auto=format&fit=crop&w=1400&q=60'); /* ave/rocha (textura) */
+    }
+    .bg-pro-img{position:absolute;inset:0;pointer-events:none;z-index:1}
+    .bgimg{position:absolute;inset:auto;will-change:transform;mix-blend-mode:soft-light;opacity:.36;filter:saturate(1.15) contrast(1.05) brightness(.9)}
+    .bgimg.one{top:-8vh;left:-6vw;width:60vw;height:60vh;background-image:var(--img1);background-size:cover;background-position:center;mask-image:radial-gradient(50% 50% at 50% 50%, #000 60%, transparent 80%);-webkit-mask-image:radial-gradient(50% 50% at 50% 50%, #000 60%, transparent 80%)}
+    .bgimg.two{bottom:-10vh;right:-8vw;width:56vw;height:56vh;background-image:var(--img2);background-size:cover;background-position:center;mask-image:radial-gradient(48% 48% at 50% 50%, #000 62%, transparent 82%);-webkit-mask-image:radial-gradient(48% 48% at 50% 50%, #000 62%, transparent 82%)}
+    .bgimg.three{top:30vh;right:20vw;width:38vw;height:38vh;background-image:var(--img3);background-size:cover;background-position:center;mask-image:radial-gradient(46% 46% at 50% 50%, #000 58%, transparent 80%);-webkit-mask-image:radial-gradient(46% 46% at 50% 50%, #000 58%, transparent 80%)}
+    @media (prefers-reduced-motion: reduce){.blob{animation:none}.bgimg{transition:none;opacity:.28}}
+  </style>
+</head>
+<body>
+  <!-- Fundo PRO (impactante e profissional) -->
+    <div class="bg-pro-img">
+      <div class="bgimg one"></div>
+      <div class="bgimg two"></div>
+      <div class="bgimg three"></div>
+    </div>
+  </div>
+  <header>
+    <div class="wrap nav">
+      <div class="brand" aria-label="Marca do site Águias">
+        <div class="logo" aria-hidden="true">
+          <svg viewBox="0 0 64 64" width="28" height="28" role="img" aria-label="Ícone de águia">
+            <path d="M12 40c8-10 22-14 40-12-10-4-18-8-22-14-2 8-8 12-18 14 6 2 10 4 14 8-6 0-10 2-14 4z" fill="#e2e8f0"/>
+          </svg>
+        </div>
+        <div>
+          <div class="title">Águias</div>
+          <div class="muted" style="font-size:12px">Didático</div>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn ghost" id="btnDark" aria-pressed="false" title="Alternar tema">🌗 Tema</button>
+        <a class="btn" href="#quiz">Fazer o quiz</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <div class="card">
+        <h1>Conheça as águias — superpredadoras do céu</h1>
+        <p class="muted">Explore espécies famosas, compare envergaduras e teste o que você sabe com um quiz rápido.</p>
+        <div class="kpi">
+          <span class="pill">Espécies em foco</span>
+          <span class="pill">Quiz interativo</span>
+          <span class="pill">MitoseFatos</span>
+        </div>
+      </div>
+      <div class="card" aria-labelledby="labVoo">
+        <h2 id="labVoo">Laboratório de voo</h2>
+        <div class="eagle">
+          <svg viewBox="0 0 200 120" role="img" aria-label="Silhueta de uma águia batendo asas" id="svgEagle">
+            <path id="wingLeft" d="M40 60 C 10 40, 10 20, 50 30 L 80 45" fill="none" stroke="#e2e8f0" stroke-width="6" stroke-linecap="round"/>
+            <path id="wingRight" d="M160 60 C 190 40, 190 20, 150 30 L 120 45" fill="none" stroke="#e2e8f0" stroke-width="6" stroke-linecap="round"/>
+            <path d="M80 60 Q 100 40 120 60 Q 100 70 80 60" fill="#e2e8f0"/>
+            <circle cx="105" cy="52" r="2" fill="#0b1220"/>
+          </svg>
+        </div>
+        <label for="rng" class="muted">Velocidade das asas</label>
+        <input id="rng" class="range" type="range" min="0" max="100" value="55" />
+        <div class="note">Dica: arraste para ver as asas acelerarem 💨</div>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top:20px">
+      <div style="display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap">
+        <h2>Espécies em destaque</h2>
+        <div class="actions">
+          <span class="chip">Habitat</span>
+          <span class="chip">Envergadura</span>
+          <span class="chip">Dieta</span>
+        </div>
+      </div>
+      <div class="species" id="species"></div>
+    </section>
+
+    <section class="panel" style="margin-top:20px">
+      <div class="card">
+        <h3>Mitos vs. Fatos</h3>
+        <div>
+          <p><strong>Mito:</strong> “Toda águia é a maior ave de rapina.”<br><span class="fact">Fato: o tamanho varia entre espécies; condores e harpias podem rivalizar em massa ou envergadura.</span></p>
+          <div class="divider"></div>
+          <p><strong>Mito:</strong> “Águias só comem animais grandes.”<br><span class="fact">Fato: muitas espécies caçam peixes, pequenos mamíferos e ocasionalmente carniça.</span></p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Comparador rápido</h3>
+        <label class="muted" for="cmp">Envergadura aproximada</label>
+        <select id="cmp" class="btn ghost" style="width:100%;margin:8px 0">
+          <option value="bald">Águia-careca (≈ 1,8–2,3 m)</option>
+          <option value="golden">Águia-real (≈ 1,8–2,3 m)</option>
+          <option value="harpy">Harpia (≈ até 2,0 m)</option>
+        </select>
+        <div id="cmpBar" style="height:14px;border-radius:999px;background:rgba(56,189,248,.15);overflow:hidden">
+          <div id="cmpFill" style="height:100%;width:62%;background:linear-gradient(90deg,var(--brand),#22d3ee)"></div>
+        </div>
+        <p class="note" id="cmpNote">Escala relativa: 0–2,4 m</p>
+      </div>
+      <div class="card" id="quiz">
+        <h3>Quiz relâmpago</h3>
+        <div class="quiz" aria-live="polite">
+          <div class="q" id="qText"></div>
+          <div id="qOpts"></div>
+          <div class="divider"></div>
+          <div id="qMeta" class="muted">Pergunta <span id="qIdx">1</span>/<span id="qTotal">5</span></div>
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <button class="btn" id="btnNext">Responder</button>
+            <button class="btn ghost" id="btnRestart">Recomeçar</button>
+          </div>
+          <div id="qResult" style="margin-top:10px"></div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      Feito com carinho. <span class="muted">(Fatos em valores aproximados; variações existem entre indivíduos e fontes.)</span>
+    </footer>
+  </main>
+
+  <script>
+    // ---- Tema claro/escuro
+    const btnDark = document.getElementById('btnDark');
+    let dark = true;
+    btnDark.addEventListener('click', ()=>{
+      dark = !dark;
+      document.documentElement.style.setProperty('--bg', dark ? '#0b1220' : '#f8fafc');
+      document.documentElement.style.setProperty('--panel', dark ? '#0f172a' : '#ffffff');
+      document.documentElement.style.setProperty('--text', dark ? '#e2e8f0' : '#0b1220');
+      document.documentElement.style.setProperty('--muted', dark ? '#94a3b8' : '#475569');
+      btnDark.setAttribute('aria-pressed', String(!dark));
+    });
+
+    // ---- Laboratório de voo (anima asas)
+    const rng = document.getElementById('rng');
+    const wingL = document.getElementById('wingLeft');
+    const wingR = document.getElementById('wingRight');
+    let t = 0;
+    function tick(){
+      const speed = (parseInt(rng.value,10)||50)/50; // 0..2
+      t += 0.06 * speed;
+      const amp = 10 + speed*8;
+      const dy = Math.sin(t)*amp;
+      wingL.setAttribute('d', `M40 ${60+dy} C 10 ${40+dy}, 10 ${20+dy}, 50 ${30+dy} L 80 ${45+dy}`);
+      wingR.setAttribute('d', `M160 ${60-dy} C 190 ${40-dy}, 190 ${20-dy}, 150 ${30-dy} L 120 ${45-dy}`);
+      requestAnimationFrame(tick);
+    }
+    tick();
+
+    // ---- Dados das espécies (simplificado e didático)
+    const data = [
+      { id:'bald', nome:'Águia-careca', cient:'Haliaeetus leucocephalus', span:[1.8,2.3], habitat:'Américas (Norte)', dieta:'Peixes, aves e pequenos mamíferos', fato:'Não é “careca”: o nome vem da cabeça branca.' },
+      { id:'golden', nome:'Águia-real', cient:'Aquila chrysaetos', span:[1.8,2.3], habitat:'Hemisfério Norte', dieta:'Coelhos, lebres e outras aves', fato:'Velocidade em mergulho pode ser muito alta em caça.' },
+      { id:'harpy', nome:'Harpia', cient:'Harpia harpyja', span:[1.7,2.0], habitat:'Florestas da América Latina', dieta:'Preguiças e macacos (principalmente)', fato:'Garras enormes: entre as maiores entre aves de rapina.' }
+    ];
+
+    const speciesEl = document.getElementById('species');
+    speciesEl.innerHTML = data.map(sp => `
+      <article class="card" aria-labelledby="h-${sp.id}">
+        <div style="display:flex;justify-content:space-between;gap:8px;align-items:start">
+          <div>
+            <h3 id="h-${sp.id}">${sp.nome}</h3>
+            <div class="muted" style="font-size:13px">${sp.cient}</div>
+          </div>
+          <span class="tag">${sp.span[0].toFixed(1)}–${sp.span[1].toFixed(1)} m</span>
+        </div>
+        <div class="divider"></div>
+        <p class="fact"><strong>Habitat:</strong> ${sp.habitat}</p>
+        <p class="fact"><strong>Dieta:</strong> ${sp.dieta}</p>
+        <p class="fact">💡 ${sp.fato}</p>
+      </article>`).join('');
+
+    // ---- Comparador
+    const cmp = document.getElementById('cmp');
+    const cmpFill = document.getElementById('cmpFill');
+    const cmpNote = document.getElementById('cmpNote');
+    function setCmp(id){
+      const s = data.find(d=>d.id===id);
+      const max = 2.4; // escala superior didática
+      const w = ((s.span[1]/max)*100).toFixed(0);
+      cmpFill.style.width = w+"%";
+      cmpNote.textContent = `Aproximação: ${s.nome} até ${s.span[1].toFixed(1)} m (escala 0–${max} m)`;
+    }
+    setCmp('bald');
+    cmp.addEventListener('change', e=>setCmp(e.target.value));
+
+    // ---- Quiz
+    const quiz = [
+      { q:'Qual destes itens é uma característica comum de aves de rapina?', a:['Bico curvo','Patas sem garras','Bico plano'], ok:0 },
+      { q:'A “águia-careca” é chamada assim porque…', a:['não tem penas na cabeça','a cabeça é branca','perde as penas no verão'], ok:1 },
+      { q:'A harpia é encontrada principalmente em…', a:['florestas tropicais da América Latina','desertos da África','tundras do Ártico'], ok:0 },
+      { q:'Envergadura representa…', a:['altura da ave','peso corporal','distância entre as pontas das asas'], ok:2 },
+      { q:'Muitas águias pescadoras se alimentam sobretudo de…', a:['frutas','peixes','néctar'], ok:1 }
+    ];
+
+    let qi = 0, sel = null, score = 0;
+    const qText = document.getElementById('qText');
+    const qOpts = document.getElementById('qOpts');
+    const qIdx = document.getElementById('qIdx');
+    const qTotal = document.getElementById('qTotal');
+    const btnNext = document.getElementById('btnNext');
+    const btnRestart = document.getElementById('btnRestart');
+    const qResult = document.getElementById('qResult');
+    qTotal.textContent = quiz.length;
+
+    function renderQ(){
+      sel = null; qResult.innerHTML = '';
+      const cur = quiz[qi];
+      qText.textContent = cur.q;
+      qOpts.innerHTML = '';
+      cur.a.forEach((opt, i)=>{
+        const id = `opt-${qi}-${i}`;
+        const el = document.createElement('label');
+        el.className = 'opt';
+        el.setAttribute('role','radio');
+        el.setAttribute('aria-checked','false');
+        el.tabIndex = 0;
+        el.innerHTML = `<input type="radio" name="q${qi}" value="${i}" style="display:none"/> ${opt}`;
+        el.onclick = ()=>{
+          [...qOpts.children].forEach(c=>c.setAttribute('aria-checked','false'));
+          el.setAttribute('aria-checked','true');
+          sel = i;
+        };
+        qOpts.appendChild(el);
+      });
+      qIdx.textContent = qi+1;
+      btnNext.textContent = qi === quiz.length-1 ? 'Finalizar' : 'Responder';
+    }
+
+    function confetti(){
+      const span = document.createElement('div');
+      span.textContent = '🎉';
+      span.style.position='fixed'; span.style.left = (10+Math.random()*80)+'vw'; span.style.top='-10vh'; span.style.fontSize = (16+Math.random()*32)+'px';
+      span.style.transition = 'transform 2.2s ease-out, opacity 2.2s';
+      document.body.appendChild(span);
+      requestAnimationFrame(()=>{
+        span.style.transform = `translateY(${120+Math.random()*80}vh) rotate(${Math.random()*360}deg)`;
+        span.style.opacity = .2;
+      });
+      setTimeout(()=>span.remove(),2300);
+    }
+
+    btnNext.addEventListener('click', ()=>{
+      if(sel===null){ qResult.innerHTML = '<span class="bad">Escolha uma alternativa.</span>'; return; }
+      const ok = quiz[qi].ok === sel;
+      score += ok ? 1 : 0;
+      qResult.innerHTML = ok ? '<span class="good">Acertou! \u2714\ufe0f</span>' : '<span class="bad">Errou. \u274c</span>';
+      if(qi === quiz.length-1){
+        // Fim
+        confetti(); confetti();
+        qResult.innerHTML += `<div style="margin-top:8px">Pontuação final: <strong>${score}/${quiz.length}</strong></div>`;
+        btnNext.disabled = true;
+      } else { qi++; renderQ(); }
+    });
+
+    btnRestart.addEventListener('click', ()=>{
+      qi = 0; score = 0; btnNext.disabled = false; renderQ();
+    });
+
+    renderQ();
+  
+
+    // ==== Som: voo + grito de águia (WebAudio) ====
+    const btnSound = document.getElementById('btnSound');
+    const btnScreech = document.getElementById('btnScreech');
+    let ac, noiseNode, noiseGain, lfo, lfoGain, screechGain;
+    function setupAudio(){
+      ac = new (window.AudioContext || window.webkitAudioContext)();
+      // white noise buffer
+      const bufferSize = 2 * ac.sampleRate;
+      const noiseBuffer = ac.createBuffer(1, bufferSize, ac.sampleRate);
+      const data = noiseBuffer.getChannelData(0);
+      for(let i=0;i<bufferSize;i++){ data[i] = Math.random()*2 - 1; }
+      noiseNode = ac.createBufferSource();
+      noiseNode.buffer = noiseBuffer; noiseNode.loop = true;
+      const lp = ac.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=800; lp.Q.value=0.7;
+      noiseGain = ac.createGain(); noiseGain.gain.value = 0.0; // começa mudo
+      lfo = ac.createOscillator(); lfo.frequency.value = 1.3; // batida das asas
+      lfoGain = ac.createGain(); lfoGain.gain.value = 0.25; // profundidade
+      lfo.connect(lfoGain).connect(noiseGain.gain);
+      screechGain = ac.createGain(); screechGain.gain.value = 0.4;
+      // rota
+      noiseNode.connect(lp).connect(noiseGain).connect(ac.destination);
+      screechGain.connect(ac.destination);
+      lfo.start();
+    }
+    let soundOn = false;
+    btnSound?.addEventListener('click', async ()=>{
+      if(!ac){ setupAudio(); }
+      if(ac.state === 'suspended') await ac.resume();
+      soundOn = !soundOn;
+      btnSound.setAttribute('aria-pressed', String(soundOn));
+      btnSound.textContent = soundOn ? '🔈 Parar som' : '🔊 Som de voo';
+      try{ if(noiseNode && !noiseNode._started){ noiseNode.start(); noiseNode._started = true; } }catch(e){}
+      const now = ac.currentTime;
+      noiseGain.gain.cancelScheduledValues(now);
+      noiseGain.gain.linearRampToValueAtTime(soundOn ? 0.18 : 0.0, now + 0.2);
+    });
+
+    btnScreech?.addEventListener('click', async ()=>{
+      if(!ac){ setupAudio(); }
+      if(ac.state === 'suspended') await ac.resume();
+      // chirp simples
+      const osc = ac.createOscillator(); osc.type='triangle';
+      const g = ac.createGain(); g.gain.value = 0.0;
+      osc.connect(g).connect(screechGain);
+      const now = ac.currentTime;
+      osc.frequency.setValueAtTime(900, now);
+      osc.frequency.exponentialRampToValueAtTime(350, now + 0.55);
+      g.gain.setValueAtTime(0.0, now);
+      g.gain.linearRampToValueAtTime(0.5, now + 0.05);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + 0.7);
+      osc.start();
+      setTimeout(()=>{ try{ osc.stop(); }catch(e){} }, 800);
+    });
+
+  
+  // ===== Fundo engraçado 2.0 – Águias cartunescas com parallax =====
+  const gagSky = document.getElementById('gagSky');
+  const btnGag = document.getElementById('btnGag');
+  let gagOn = true, rafId = 0, birds = [];
+
+  function eagleSVG(variant){
+    // Peça única em SVG com "chapéu" e "óculos" ocasionais
+    const hat = Math.random() < 0.4;
+    const shades = Math.random() < 0.5;
+    const fish = Math.random() < 0.3;
+    return `
+    <svg viewBox="0 0 160 100" aria-hidden="true" focusable="false">
+      <!-- asas -->
+      <path d="M20 60 C 4 40, 4 20, 40 30 L 70 40" fill="none" stroke="#e2e8f0" stroke-width="6" stroke-linecap="round"/>
+      <path d="M140 60 C 156 40, 156 20, 120 30 L 90 40" fill="none" stroke="#e2e8f0" stroke-width="6" stroke-linecap="round"/>
+      <!-- corpo/cabeça -->
+      <ellipse cx="80" cy="60" rx="30" ry="18" fill="#e2e8f0"/>
+      <ellipse cx="90" cy="50" rx="12" ry="9" fill="#e2e8f0"/>
+      <!-- bico -->
+      <polygon points="100,52 112,56 100,60" fill="#f59e0b"/>
+      <!-- olho -->
+      <circle cx="94" cy="50" r="3" fill="#0b1220"/>
+      ${shades ? `<rect x="86" y="45" rx="2" ry="2" width="10" height="6" fill="#111"/><rect x="98" y="45" rx="2" ry="2" width="10" height="6" fill="#111"/><rect x="96" y="47" width="2" height="2" fill="#111"/>` : ''}
+      ${hat ? `<rect x="86" y="36" width="26" height="6" rx="3" fill="#1f2937"/><rect x="92" y="26" width="14" height="12" rx="2" fill="#1f2937"/>` : ''}
+      ${fish ? `<path d="M60,78 q8,2 12,0 q4,-2 8,0 q-4,4 -8,6 q-4,-2 -12,0 Z" fill="#38bdf8" opacity="0.8"/>` : ''}
+    </svg>`;
+  }
+
+  function spawnEagles(n=14){
+    gagSky.innerHTML=''; birds.length=0;
+    // nuvens de leve
+    for(const cfg of [[18,80],[36,64],[58,72]]){
+      const c = document.createElement('div');
+      c.className='gag-cloud';
+      c.style.setProperty('--top', cfg[0]+'%');
+      c.style.opacity = .18;
+      gagSky.appendChild(c);
+    }
+    for(let i=0;i<n;i++){
+      const el = document.createElement('div');
+      el.className = 'gag-eagle';
+      el.style.setProperty('--h', `${(Math.random()*50-25).toFixed(1)}deg`);
+      const scale = 0.7 + Math.random()*0.9; // 0.7–1.6
+      const y0 = 10 + Math.random()*78;      // vh
+      const speed = 12 + Math.random()*22;   // px/ms-ish virtual
+      const amp = 6 + Math.random()*14;      // vh
+      const phase = Math.random()*Math.PI*2;
+      el.dataset.scale = scale; el.dataset.y0 = y0; el.dataset.speed=speed; el.dataset.amp=amp; el.dataset.phase=phase;
+      el.innerHTML = eagleSVG(i%3);
+      gagSky.appendChild(el);
+      birds.push(el);
+    }
+  }
+
+  function loop(ts){
+    for(const el of birds){
+      const scale = parseFloat(el.dataset.scale);
+      const y0 = parseFloat(el.dataset.y0);
+      const speed = parseFloat(el.dataset.speed);
+      const amp = parseFloat(el.dataset.amp);
+      const phase = parseFloat(el.dataset.phase);
+      const x = ( (ts/1000)*speed + (el._offset||0) ) % 140; // 0–140 vw
+      if(!el._offset && Math.random()<.2){ el._offset = Math.random()*100; }
+      const y = y0 + Math.sin((ts/900)*speed + phase) * amp;
+      const tilt = Math.sin((ts/500) + phase) * 6;
+      el.style.transform = `translateX(${x}vw) translateY(${y}vh) scale(${scale}) rotate(${tilt}deg)`;
+      if(x<1 && Math.random()<0.03){ el.innerHTML = eagleSVG(0); }
+    }
+    rafId = requestAnimationFrame(loop);
+  }
+
+  function startGag(){
+    if(!gagOn) return; cancelAnimationFrame(rafId);
+    spawnEagles(16);
+    rafId = requestAnimationFrame(loop);
+  }
+  function stopGag(){ cancelAnimationFrame(rafId); gagSky.innerHTML=''; }
+
+  btnGag?.addEventListener('click', ()=>{
+    gagOn = !gagOn; btnGag.setAttribute('aria-pressed', String(gagOn));
+    btnGag.textContent = gagOn ? '🎭 Fundo divertido' : '🎭 Fundo OFF';
+    if(gagOn) startGag(); else stopGag();
+  });
+
+  startGag();
+
+
+    // === Parallax suave para o collage fotográfico ===
+    (function(){
+      const imgs = Array.from(document.querySelectorAll('.bgimg'));
+      if(!imgs.length) return;
+      let px=0, py=0, tx=0, ty=0;
+      function raf(){
+        px += (tx - px)*0.06; py += (ty - py)*0.06;
+        imgs.forEach((el,i)=>{
+          const depth = (i+1)*7; // menor = mais movimento
+          el.style.transform = `translate(${px/depth}vw, ${py/depth}vh)`;
+        });
+        requestAnimationFrame(raf);
+      }
+      window.addEventListener('pointermove', (e)=>{
+        const vw = Math.max(innerWidth,1), vh = Math.max(innerHeight,1);
+        tx = ((e.clientX / vw) - 0.5) * 6; // +-3vw
+        ty = ((e.clientY / vh) - 0.5) * 4; // +-2vh
+      }, {passive:true});
+      raf();
+    })();
+  </script>
+</body>
+</html>
