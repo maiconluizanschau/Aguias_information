@@ -51,7 +51,7 @@
     svg{max-width:360px}
     .range{width:100%}
     .note{font-size:12px;color:var(--muted)}
-    /* === Fundo engraçado: águias voando + nuvens === */
+    /* === Fundo: águias voando + nuvens === */
     .bg-sky{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;background:
       radial-gradient(1200px 600px at 50% -20%, rgba(56,189,248,.12), transparent),
       var(--bg);
@@ -63,12 +63,12 @@
       background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:999px;filter:blur(2px);animation:drift var(--cdur,70s) linear infinite}
     @keyframes fly{to{transform:translateX(112vw) translateY(var(--y,10vh)) scale(var(--s,1))}}
     @keyframes drift{to{transform:translateX(140vw)}}
-    /* === Fundo engraçado 2.0: águias cartunescas ao fundo === */
+    /* === Fundo 2.0: águias cartunescas ao fundo === */
     .gag-sky{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;background:var(--bg)}
     .gag-eagle{position:absolute;left:-15vw;top:0;opacity:.22;filter:drop-shadow(0 6px 10px rgba(0,0,0,.35)) hue-rotate(var(--h,0deg));will-change:transform}
     .gag-eagle svg{width:clamp(54px,6vw,128px);height:auto}
     .gag-cloud{position:absolute;top:var(--top,20%);left:-30vw;width:clamp(160px,22vw,340px);height:clamp(80px,10vw,160px);background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:999px;filter:blur(2px)}
-    /* === Fundo PRO: Gradient Mesh Aurora + Grid sutil (impactante e profissional) === */
+    /* === Fundo PRO: Gradient Mesh Aurora + Grid sutil === */
     /* Desativa fundos anteriores se existirem */
     .gag-sky, .bg-sky, .bg-serra { display:none !important; }
     .bg-pro{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
@@ -96,7 +96,7 @@
   </style>
 </head>
 <body>
-  <!-- Fundo PRO (impactante e profissional) -->
+  <!-- Fundo-->
     <div class="bg-pro-img">
       <div class="bgimg one"></div>
       <div class="bgimg two"></div>
@@ -402,7 +402,7 @@
     });
 
   
-  // ===== Fundo engraçado 2.0 – Águias cartunescas com parallax =====
+  // ===== Fundo – Águias cartunescas com parallax =====
   const gagSky = document.getElementById('gagSky');
   const btnGag = document.getElementById('btnGag');
   let gagOn = true, rafId = 0, birds = [];
